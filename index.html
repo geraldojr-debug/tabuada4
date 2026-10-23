@@ -119,14 +119,18 @@
     let ranking = JSON.parse(localStorage.getItem('tabuada_ranking')) || [];
     let currentProfile = null;
 
-    // Estado da partida atual
+    // Estado da partida atual (valores matemáticos internos)
     let currentNum1 = 0;
     let currentNum2 = 0;
     let currentPairIndex = -1;
     let inputAnswer = "";
 
-    // Histórico de apresentações visuais para o controlador estético
-    let shownHistory = []; // Guarda [f1, f2] exatamente como foram mostrados na tela
+    // Valores estéticos exibidos na tela
+    let displayedF1 = 0;
+    let displayedF2 = 0;
+
+    // Histórico de apresentações visuais
+    let shownHistory = []; 
 
     // Estado da rodada BÔNUS
     let isBonusMode = false;
@@ -389,7 +393,6 @@
         document.getElementById('progress-text').innerText = formattedPercentage + '%';
     }
 
-    // Verifica se os pares representam a mesma conta (considerando comutação 1x5 e 5x1)
     function isSameAccount(f1, f2, pair) {
         if (!pair) return false;
         return (f1 === pair[0] && f2 === pair[1]) || (f1 === pair[1] && f2 === pair[0]);
@@ -399,20 +402,19 @@
         const p = profiles[currentProfile];
         if (p.remainingDeck.length === 0) return;
 
-        // Se estivermos entrando em modo bônus, apenas mantemos a pergunta já sorteada
         if (isBonusMode) {
             renderCurrentQuestion();
             clearAnswer();
             return;
         }
 
-        // Sorteia uma conta do baralho normal
+        // Sorteia a conta interna do baralho
         currentPairIndex = Math.floor(Math.random() * p.remainingDeck.length);
         const pair = p.remainingDeck[currentPairIndex];
         currentNum1 = pair[0];
         currentNum2 = pair[1];
 
-        // CONTROLADOR ESTÉTICO: Checa se essa conta é idêntica a alguma das 2 últimas exibidas
+        // CONTROLADOR ESTÉTICO: Checa se a conta é idêntica a alguma das 2 últimas exibidas
         const last1 = shownHistory.length >= 1 ? shownHistory[shownHistory.length - 1] : null;
         const last2 = shownHistory.length >= 2 ? shownHistory[shownHistory.length - 2] : null;
 
@@ -420,11 +422,9 @@
         const matchesLast2 = isSameAccount(currentNum1, currentNum2, last2);
 
         if (matchesLast1 || matchesLast2) {
-            // Ativa o BÔNUS!
             isBonusMode = true;
             document.getElementById('bonus-banner').classList.remove('hidden');
 
-            // Gera conta bônus aleatória (diferente da conta principal retida)
             const maxF2 = getMaxFactor2(p.level);
             do {
                 bonusNum1 = Math.floor(Math.random() * p.level) + 1;
@@ -435,25 +435,25 @@
             document.getElementById('bonus-banner').classList.add('hidden');
         }
 
+        // CONTROLADOR ESTÉTICO: Sorteia alternância estática dos fatores para não fixar o 1 à direita
+        let n1 = isBonusMode ? bonusNum1 : currentNum1;
+        let n2 = isBonusMode ? bonusNum2 : currentNum2;
+
+        if (Math.random() < 0.5) {
+            displayedF1 = n1;
+            displayedF2 = n2;
+        } else {
+            displayedF1 = n2;
+            displayedF2 = n1;
+        }
+
         renderCurrentQuestion();
         clearAnswer();
     }
 
     function renderCurrentQuestion() {
         if (isPaused) return;
-
-        let displayF1 = isBonusMode ? bonusNum1 : currentNum1;
-        let displayF2 = isBonusMode ? bonusNum2 : currentNum2;
-
-        // Ajuste estético secundário para evitar fator inicial duplicado em sequência
-        const last1 = shownHistory.length >= 1 ? shownHistory[shownHistory.length - 1] : null;
-        if (last1 && displayF1 === last1[0]) {
-            const temp = displayF1;
-            displayF1 = displayF2;
-            displayF2 = temp;
-        }
-
-        document.getElementById('question-display').innerText = `${displayF1} × ${displayF2} = ?`;
+        document.getElementById('question-display').innerText = `${displayedF1} × ${displayedF2} = ?`;
     }
 
     function pressKey(val) {
@@ -501,24 +501,30 @@
         if (isBonusMode) {
             const correctBonus = bonusNum1 * bonusNum2;
 
-            // Registra a exibição do Bônus no histórico visual
-            shownHistory.push([bonusNum1, bonusNum2]);
+            shownHistory.push([displayedF1, displayedF2]);
             if (shownHistory.length > 5) shownHistory.shift();
 
             if (userAnswer === correctBonus) {
-                // Recompensa: reduz 10 segundos do tempo
                 p.timeElapsed = Math.max(0, p.timeElapsed - 10);
                 alert(`✨ BÔNUS ACERTADO! ✨\nVocê ganhou -10 segundos no seu tempo!`);
             } else {
-                // Erro no bônus: nada acontece
                 alert(`Bônus incorreto! O resultado era ${correctBonus}.\nSua partida continua normalmente sem penalidades.`);
             }
 
-            // Desativa modo bônus e retorna à conta normal retida
             isBonusMode = false;
             document.getElementById('bonus-banner').classList.add('hidden');
             saveState();
             updateUI();
+
+            // Sorteia alternância estática para a conta principal retida
+            if (Math.random() < 0.5) {
+                displayedF1 = currentNum1;
+                displayedF2 = currentNum2;
+            } else {
+                displayedF1 = currentNum2;
+                displayedF2 = currentNum1;
+            }
+
             renderCurrentQuestion();
             clearAnswer();
             return;
@@ -527,8 +533,7 @@
         // --- TRATAMENTO DA RESPOSTA NORMAL ---
         const correctAnswer = currentNum1 * currentNum2;
 
-        // Registra exibição no histórico visual
-        shownHistory.push([currentNum1, currentNum2]);
+        shownHistory.push([displayedF1, displayedF2]);
         if (shownHistory.length > 5) shownHistory.shift();
 
         if (userAnswer === correctAnswer) {
@@ -536,7 +541,6 @@
             p.completedCount++;
 
             if (p.remainingDeck.length === 0) {
-                // Registra vitória no Ranking
                 ranking.push({
                     name: currentProfile,
                     level: p.level,
@@ -560,7 +564,7 @@
                 }
             }
         } else {
-            alert(`Errou! O resultado de ${currentNum1} × ${currentNum2} é ${correctAnswer}.\nEsta multiplicação foi adicionada mais 10 vezes ao baralho.`);
+            alert(`Errou! O resultado de ${displayedF1} × ${displayedF2} é ${correctAnswer}.\nEsta multiplicação foi adicionada mais 10 vezes ao baralho.`);
             
             for (let i = 0; i < 10; i++) {
                 p.remainingDeck.push([currentNum1, currentNum2]);
