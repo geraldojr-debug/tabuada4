@@ -7,49 +7,78 @@
     <style>
         * { box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 15px; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        h1, h2 { color: #333; margin-top: 0; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
+        h1, h2, h3 { color: #333; margin-top: 0; }
         .btn { background: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 16px; width: 100%; cursor: pointer; margin-top: 10px; font-weight: bold; }
         .btn-sec { background: #6c757d; }
-        input[type="text"] { width: 100%; padding: 10px; font-size: 18px; border-radius: 8px; border: 1px solid #ccc; text-align: center; margin-bottom: 10px; }
+        .btn-warn { background: #ffc107; color: #333; }
+        .btn-sm { padding: 6px 12px; font-size: 14px; width: auto; margin: 0; }
+        input[type="text"], select { width: 100%; padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; text-align: center; margin-bottom: 10px; }
         
         /* Barra de Progresso */
-        .progress-container { background: #e0e0e0; border-radius: 10px; height: 20px; width: 100%; margin: 15px 0 5px 0; overflow: hidden; }
+        .progress-container { background: #e0e0e0; border-radius: 10px; height: 20px; width: 100%; margin: 10px 0 5px 0; overflow: hidden; }
         .progress-bar { background: #28a745; height: 100%; width: 0%; transition: width 0.3s; }
         .progress-text { font-size: 14px; font-weight: bold; color: #555; }
 
         /* Teclado Numérico */
-        .display-answer { font-size: 32px; font-weight: bold; height: 50px; line-height: 50px; border: 2px solid #007bff; border-radius: 8px; margin: 15px 0; background: #f8f9fa; color: #333; }
+        .display-answer { font-size: 32px; font-weight: bold; height: 50px; line-height: 50px; border: 2px solid #007bff; border-radius: 8px; margin: 10px 0; background: #f8f9fa; color: #333; }
         .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
         .key { background: #e9ecef; border: none; padding: 15px; font-size: 20px; font-weight: bold; border-radius: 8px; color: #333; }
         .key:active { background: #ced4da; }
         .key-danger { background: #dc3545; color: white; }
 
-        .question { font-size: 36px; font-weight: bold; color: #007bff; margin: 15px 0; }
+        .question { font-size: 36px; font-weight: bold; color: #007bff; margin: 10px 0; min-height: 50px; }
+        .bonus-badge { background: #ffc107; color: #000; font-weight: bold; padding: 4px 12px; border-radius: 20px; font-size: 16px; display: inline-block; margin-bottom: 5px; animation: pulse 1s infinite alternate; }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+
         .hidden { display: none; }
-        .profile-item { display: flex; justify-content: space-between; align-items: center; background: #e9ecef; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .profile-item { display: flex; justify-content: space-between; align-items: center; background: #e9ecef; padding: 10px; border-radius: 8px; margin-bottom: 10px; text-align: left; }
+        
+        /* Tabela de Ranking */
+        .rank-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        .rank-table th, .rank-table td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        .rank-table th { background-color: #007bff; color: white; }
+
+        .timer-display { font-size: 18px; font-weight: bold; color: #dc3545; margin: 5px 0; }
+        .controls-row { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <!-- TELA DE PERFIS -->
+    <!-- TELA DE PERFIS E RANKING -->
     <div id="screen-profiles">
         <h2>Selecione o Perfil</h2>
         <div id="profile-list"></div>
         <hr>
         <input type="text" id="new-profile-name" placeholder="Nome do novo perfil" maxlength="15">
         <button class="btn" onclick="createProfile()">Criar Perfil</button>
+
+        <hr style="margin: 20px 0;">
+        <h3>🏆 Ranking de Níveis Concluídos</h3>
+        <div id="ranking-container">
+            <p style="color: #777; font-size: 14px;">Nenhum nível concluído ainda.</p>
+        </div>
     </div>
 
     <!-- TELA DO JOGO -->
     <div id="screen-game" class="hidden">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <strong id="user-display"></strong>
-            <button class="btn btn-sec" style="width: auto; padding: 5px 10px; margin: 0;" onclick="showProfiles()">Trocar Perfil</button>
+            <button class="btn btn-sec btn-sm" onclick="showProfiles()">Sair / Perfil</button>
         </div>
 
-        <h2 style="margin-top: 15px;">Nível <span id="level-display">1</span></h2>
+        <div style="margin-top: 10px;">
+            <label for="select-level" style="font-weight: bold;">Nível Atual: </label>
+            <select id="select-level" style="width: auto; display: inline-block;" onchange="changeLevel(this.value)"></select>
+        </div>
+
+        <div class="timer-display">⏱️ Tempo: <span id="timer-text">00:00</span></div>
+
+        <div class="controls-row">
+            <button class="btn btn-warn btn-sm" id="btn-pause" onclick="togglePause()">Pausar</button>
+            <button class="btn btn-sec btn-sm" onclick="restartLevel()">Reiniciar Nível</button>
+        </div>
 
         <!-- Progresso do Nível -->
         <div class="progress-container">
@@ -57,47 +86,62 @@
         </div>
         <div id="progress-text" class="progress-text">0.00%</div>
 
+        <div id="bonus-banner" class="hidden"><span class="bonus-badge">✨ BÔNUS! (-10s se acertar) ✨</span></div>
         <div class="question" id="question-display">1 × 1 = ?</div>
 
         <!-- Visor da Resposta -->
         <div class="display-answer" id="answer-display"></div>
 
         <!-- Teclado Numérico Virtual -->
-        <div class="keypad">
-            <button class="key" onclick="pressKey('1')">1</button>
-            <button class="key" onclick="pressKey('2')">2</button>
-            <button class="key" onclick="pressKey('3')">3</button>
-            <button class="key" onclick="pressKey('4')">4</button>
-            <button class="key" onclick="pressKey('5')">5</button>
-            <button class="key" onclick="pressKey('6')">6</button>
-            <button class="key" onclick="pressKey('7')">7</button>
-            <button class="key" onclick="pressKey('8')">8</button>
-            <button class="key" onclick="pressKey('9')">9</button>
-            <button class="key key-danger" onclick="clearAnswer()">C</button>
-            <button class="key" onclick="pressKey('0')">0</button>
-            <button class="key key-danger" onclick="backspace()">⌫</button>
-        </div>
+        <div id="game-controls">
+            <div class="keypad">
+                <button class="key" onclick="pressKey('1')">1</button>
+                <button class="key" onclick="pressKey('2')">2</button>
+                <button class="key" onclick="pressKey('3')">3</button>
+                <button class="key" onclick="pressKey('4')">4</button>
+                <button class="key" onclick="pressKey('5')">5</button>
+                <button class="key" onclick="pressKey('6')">6</button>
+                <button class="key" onclick="pressKey('7')">7</button>
+                <button class="key" onclick="pressKey('8')">8</button>
+                <button class="key" onclick="pressKey('9')">9</button>
+                <button class="key key-danger" onclick="clearAnswer()">C</button>
+                <button class="key" onclick="pressKey('0')">0</button>
+                <button class="key key-danger" onclick="backspace()">⌫</button>
+            </div>
 
-        <button class="btn" onclick="submitAnswer()">Responder</button>
+            <button class="btn" onclick="submitAnswer()">Responder</button>
+        </div>
     </div>
 </div>
 
 <script>
     let profiles = JSON.parse(localStorage.getItem('tabuada_profiles')) || {};
+    let ranking = JSON.parse(localStorage.getItem('tabuada_ranking')) || [];
     let currentProfile = null;
 
+    // Estado da partida atual
     let currentNum1 = 0;
     let currentNum2 = 0;
     let currentPairIndex = -1;
     let inputAnswer = "";
 
+    // Histórico de apresentações visuais para o controlador estético
+    let shownHistory = []; // Guarda [f1, f2] exatamente como foram mostrados na tela
+
+    // Estado da rodada BÔNUS
+    let isBonusMode = false;
+    let bonusNum1 = 0;
+    let bonusNum2 = 0;
+
+    // Cronômetro
+    let timerInterval = null;
+    let isPaused = false;
+
     function saveState() {
         localStorage.setItem('tabuada_profiles', JSON.stringify(profiles));
+        localStorage.setItem('tabuada_ranking', JSON.stringify(ranking));
     }
 
-    // Calcula o limite do segundo fator da multiplicação:
-    // Até o nível 10 -> vai até 10
-    // A partir do nível 11 -> vai até o número do próprio nível
     function getMaxFactor2(level) {
         return level <= 10 ? 10 : level;
     }
@@ -121,12 +165,119 @@
             p.remainingDeck = generateLevelDeck(p.level);
             p.totalDeckSize = p.remainingDeck.length;
             p.completedCount = 0;
-            p.history = [];
+            p.timeElapsed = 0;
         }
-        if (!p.history) p.history = [];
+        if (!p.maxLevelUnlocked) p.maxLevelUnlocked = p.level;
+        if (p.timeElapsed === undefined) p.timeElapsed = 0;
+    }
+
+    function startTimer() {
+        stopTimer();
+        timerInterval = setInterval(() => {
+            if (!isPaused && currentProfile && profiles[currentProfile]) {
+                profiles[currentProfile].timeElapsed++;
+                updateTimerDisplay();
+                saveState();
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+    }
+
+    function formatTime(seconds) {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    function updateTimerDisplay() {
+        if (!currentProfile || !profiles[currentProfile]) return;
+        document.getElementById('timer-text').innerText = formatTime(profiles[currentProfile].timeElapsed);
+    }
+
+    function togglePause() {
+        isPaused = !isPaused;
+        const btn = document.getElementById('btn-pause');
+        const controls = document.getElementById('game-controls');
+        const questionDisplay = document.getElementById('question-display');
+        const bonusBanner = document.getElementById('bonus-banner');
+
+        if (isPaused) {
+            btn.innerText = "Continuar";
+            btn.classList.remove('btn-warn');
+            btn.classList.add('btn');
+            controls.classList.add('hidden');
+            bonusBanner.classList.add('hidden');
+            questionDisplay.innerText = "PAUSADO";
+        } else {
+            btn.innerText = "Pausar";
+            btn.classList.remove('btn');
+            btn.classList.add('btn-warn');
+            controls.classList.remove('hidden');
+            if (isBonusMode) bonusBanner.classList.remove('hidden');
+            renderCurrentQuestion();
+        }
+    }
+
+    function restartLevel() {
+        if (!confirm("Tem certeza que deseja reiniciar o progresso e o tempo deste nível?")) return;
+        const p = profiles[currentProfile];
+        p.remainingDeck = generateLevelDeck(p.level);
+        p.totalDeckSize = p.remainingDeck.length;
+        p.completedCount = 0;
+        p.timeElapsed = 0;
+        shownHistory = [];
+        isBonusMode = false;
+        document.getElementById('bonus-banner').classList.add('hidden');
+        saveState();
+        updateUI();
+        nextQuestion();
+    }
+
+    function renderRanking() {
+        const container = document.getElementById('ranking-container');
+        if (ranking.length === 0) {
+            container.innerHTML = '<p style="color: #777; font-size: 14px;">Nenhum nível concluído ainda.</p>';
+            return;
+        }
+
+        ranking.sort((a, b) => {
+            if (b.level !== a.level) return b.level - a.level;
+            return a.time - b.time;
+        });
+
+        let html = `
+            <table class="rank-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Perfil</th>
+                        <th>Nível</th>
+                        <th>Tempo</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        ranking.slice(0, 15).forEach((item, index) => {
+            html += `
+                <tr>
+                    <td>${index + 1}º</td>
+                    <td><strong>${item.name}</strong></td>
+                    <td>Nível ${item.level}</td>
+                    <td>${formatTime(item.time)}</td>
+                </tr>
+            `;
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
     }
 
     function showProfiles() {
+        stopTimer();
         document.getElementById('screen-game').classList.add('hidden');
         document.getElementById('screen-profiles').classList.remove('hidden');
         
@@ -134,14 +285,20 @@
         listContainer.innerHTML = '';
 
         Object.keys(profiles).forEach(name => {
+            const p = profiles[name];
             const div = document.createElement('div');
             div.className = 'profile-item';
             div.innerHTML = `
-                <span><strong>${name}</strong> (Nível ${profiles[name].level})</span>
-                <button class="btn" style="width: auto; margin: 0; padding: 6px 12px;" onclick="selectProfile('${name}')">Jogar</button>
+                <div>
+                    <strong>${name}</strong><br>
+                    <small style="color: #555;">Nível Atual: ${p.level} (Máx: ${p.maxLevelUnlocked || p.level})</small>
+                </div>
+                <button class="btn btn-sm" onclick="selectProfile('${name}')">Jogar</button>
             `;
             listContainer.appendChild(div);
         });
+
+        renderRanking();
     }
 
     function createProfile() {
@@ -152,10 +309,11 @@
 
         profiles[name] = {
             level: 1,
+            maxLevelUnlocked: 1,
             remainingDeck: [],
             totalDeckSize: 0,
             completedCount: 0,
-            history: []
+            timeElapsed: 0
         };
         initProfileDeckIfNeeded(profiles[name]);
         saveState();
@@ -173,15 +331,57 @@
         document.getElementById('screen-game').classList.remove('hidden');
         document.getElementById('user-display').innerText = name;
         
+        shownHistory = [];
+        isBonusMode = false;
+        document.getElementById('bonus-banner').classList.add('hidden');
+
+        if (isPaused) togglePause();
+
+        updateLevelSelector();
+        updateUI();
+        nextQuestion();
+        startTimer();
+    }
+
+    function updateLevelSelector() {
+        const p = profiles[currentProfile];
+        const select = document.getElementById('select-level');
+        select.innerHTML = '';
+
+        const maxUnlocked = p.maxLevelUnlocked || p.level;
+        for (let i = 1; i <= maxUnlocked; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.innerText = i;
+            if (i === p.level) opt.selected = true;
+            select.appendChild(opt);
+        }
+    }
+
+    function changeLevel(newLevel) {
+        newLevel = parseInt(newLevel, 10);
+        const p = profiles[currentProfile];
+
+        if (newLevel === p.level) return;
+
+        p.level = newLevel;
+        p.remainingDeck = generateLevelDeck(p.level);
+        p.totalDeckSize = p.remainingDeck.length;
+        p.completedCount = 0;
+        p.timeElapsed = 0;
+        shownHistory = [];
+        isBonusMode = false;
+        document.getElementById('bonus-banner').classList.add('hidden');
+
+        saveState();
         updateUI();
         nextQuestion();
     }
 
     function updateUI() {
         const p = profiles[currentProfile];
-        document.getElementById('level-display').innerText = p.level;
+        updateTimerDisplay();
 
-        // Calcula a porcentagem do progresso baseada no total dinâmico do baralho
         const percentage = p.totalDeckSize > 0 ? (p.completedCount / p.totalDeckSize) * 100 : 0;
         const formattedPercentage = Math.min(percentage, 100).toFixed(2);
 
@@ -189,54 +389,71 @@
         document.getElementById('progress-text').innerText = formattedPercentage + '%';
     }
 
-    function isSamePair(pair, n1, n2) {
-        return pair[0] === n1 && pair[1] === n2;
+    // Verifica se os pares representam a mesma conta (considerando comutação 1x5 e 5x1)
+    function isSameAccount(f1, f2, pair) {
+        if (!pair) return false;
+        return (f1 === pair[0] && f2 === pair[1]) || (f1 === pair[1] && f2 === pair[0]);
     }
 
     function nextQuestion() {
         const p = profiles[currentProfile];
-
         if (p.remainingDeck.length === 0) return;
 
-        const h = p.history;
-        const hLen = h.length;
-        const last1 = hLen >= 1 ? h[hLen - 1] : null;
-        const last2 = hLen >= 2 ? h[hLen - 2] : null;
-
-        let validIndices = [];
-        for (let i = 0; i < p.remainingDeck.length; i++) {
-            const card = p.remainingDeck[i];
-            const matchesLast1 = last1 && isSamePair(card, last1[0], last1[1]);
-            const matchesLast2 = last2 && isSamePair(card, last2[0], last2[1]);
-
-            if (!matchesLast1 && !matchesLast2) {
-                validIndices.push(i);
-            }
+        // Se estivermos entrando em modo bônus, apenas mantemos a pergunta já sorteada
+        if (isBonusMode) {
+            renderCurrentQuestion();
+            clearAnswer();
+            return;
         }
 
-        if (validIndices.length > 0) {
-            currentPairIndex = validIndices[Math.floor(Math.random() * validIndices.length)];
-        } else {
-            let fallbackIndices = [];
-            for (let i = 0; i < p.remainingDeck.length; i++) {
-                const card = p.remainingDeck[i];
-                if (!last1 || !isSamePair(card, last1[0], last1[1])) {
-                    fallbackIndices.push(i);
-                }
-            }
-            if (fallbackIndices.length > 0) {
-                currentPairIndex = fallbackIndices[Math.floor(Math.random() * fallbackIndices.length)];
-            } else {
-                currentPairIndex = 0;
-            }
-        }
-
+        // Sorteia uma conta do baralho normal
+        currentPairIndex = Math.floor(Math.random() * p.remainingDeck.length);
         const pair = p.remainingDeck[currentPairIndex];
         currentNum1 = pair[0];
         currentNum2 = pair[1];
-        
-        document.getElementById('question-display').innerText = `${currentNum1} × ${currentNum2} = ?`;
+
+        // CONTROLADOR ESTÉTICO: Checa se essa conta é idêntica a alguma das 2 últimas exibidas
+        const last1 = shownHistory.length >= 1 ? shownHistory[shownHistory.length - 1] : null;
+        const last2 = shownHistory.length >= 2 ? shownHistory[shownHistory.length - 2] : null;
+
+        const matchesLast1 = isSameAccount(currentNum1, currentNum2, last1);
+        const matchesLast2 = isSameAccount(currentNum1, currentNum2, last2);
+
+        if (matchesLast1 || matchesLast2) {
+            // Ativa o BÔNUS!
+            isBonusMode = true;
+            document.getElementById('bonus-banner').classList.remove('hidden');
+
+            // Gera conta bônus aleatória (diferente da conta principal retida)
+            const maxF2 = getMaxFactor2(p.level);
+            do {
+                bonusNum1 = Math.floor(Math.random() * p.level) + 1;
+                bonusNum2 = Math.floor(Math.random() * maxF2) + 1;
+            } while (isSameAccount(bonusNum1, bonusNum2, [currentNum1, currentNum2]));
+        } else {
+            isBonusMode = false;
+            document.getElementById('bonus-banner').classList.add('hidden');
+        }
+
+        renderCurrentQuestion();
         clearAnswer();
+    }
+
+    function renderCurrentQuestion() {
+        if (isPaused) return;
+
+        let displayF1 = isBonusMode ? bonusNum1 : currentNum1;
+        let displayF2 = isBonusMode ? bonusNum2 : currentNum2;
+
+        // Ajuste estético secundário para evitar fator inicial duplicado em sequência
+        const last1 = shownHistory.length >= 1 ? shownHistory[shownHistory.length - 1] : null;
+        if (last1 && displayF1 === last1[0]) {
+            const temp = displayF1;
+            displayF1 = displayF2;
+            displayF2 = temp;
+        }
+
+        document.getElementById('question-display').innerText = `${displayF1} × ${displayF2} = ?`;
     }
 
     function pressKey(val) {
@@ -275,41 +492,81 @@
     }
 
     function submitAnswer() {
-        if (inputAnswer === "") return;
+        if (inputAnswer === "" || isPaused) return;
 
         const p = profiles[currentProfile];
-        const correctAnswer = currentNum1 * currentNum2;
         const userAnswer = parseInt(inputAnswer, 10);
 
-        p.history.push([currentNum1, currentNum2]);
-        if (p.history.length > 5) p.history.shift();
+        // --- TRATAMENTO DA RESPOSTA BÔNUS ---
+        if (isBonusMode) {
+            const correctBonus = bonusNum1 * bonusNum2;
+
+            // Registra a exibição do Bônus no histórico visual
+            shownHistory.push([bonusNum1, bonusNum2]);
+            if (shownHistory.length > 5) shownHistory.shift();
+
+            if (userAnswer === correctBonus) {
+                // Recompensa: reduz 10 segundos do tempo
+                p.timeElapsed = Math.max(0, p.timeElapsed - 10);
+                alert(`✨ BÔNUS ACERTADO! ✨\nVocê ganhou -10 segundos no seu tempo!`);
+            } else {
+                // Erro no bônus: nada acontece
+                alert(`Bônus incorreto! O resultado era ${correctBonus}.\nSua partida continua normalmente sem penalidades.`);
+            }
+
+            // Desativa modo bônus e retorna à conta normal retida
+            isBonusMode = false;
+            document.getElementById('bonus-banner').classList.add('hidden');
+            saveState();
+            updateUI();
+            renderCurrentQuestion();
+            clearAnswer();
+            return;
+        }
+
+        // --- TRATAMENTO DA RESPOSTA NORMAL ---
+        const correctAnswer = currentNum1 * currentNum2;
+
+        // Registra exibição no histórico visual
+        shownHistory.push([currentNum1, currentNum2]);
+        if (shownHistory.length > 5) shownHistory.shift();
 
         if (userAnswer === correctAnswer) {
             p.remainingDeck.splice(currentPairIndex, 1);
             p.completedCount++;
 
             if (p.remainingDeck.length === 0) {
+                // Registra vitória no Ranking
+                ranking.push({
+                    name: currentProfile,
+                    level: p.level,
+                    time: p.timeElapsed
+                });
+
                 if (p.level < 100) {
-                    alert(`Parabéns! Você concluiu o Nível ${p.level} e avançou para o Nível ${p.level + 1}!`);
+                    alert(`Parabéns! Você concluiu o Nível ${p.level} em ${formatTime(p.timeElapsed)} e avançou!`);
                     p.level++;
+                    if (p.level > p.maxLevelUnlocked) {
+                        p.maxLevelUnlocked = p.level;
+                    }
                     p.remainingDeck = generateLevelDeck(p.level);
                     p.totalDeckSize = p.remainingDeck.length;
                     p.completedCount = 0;
-                    p.history = [];
+                    p.timeElapsed = 0;
+                    shownHistory = [];
+                    updateLevelSelector();
                 } else {
-                    alert("Incrível! Você concluiu todos os 100 níveis!");
+                    alert(`Incrível! Você concluiu o Nível 100 em ${formatTime(p.timeElapsed)}!`);
                 }
             }
         } else {
             alert(`Errou! O resultado de ${currentNum1} × ${currentNum2} é ${correctAnswer}.\nEsta multiplicação foi adicionada mais 10 vezes ao baralho.`);
             
-            // Adiciona a multiplicação errada mais 10 vezes
             for (let i = 0; i < 10; i++) {
                 p.remainingDeck.push([currentNum1, currentNum2]);
             }
             p.totalDeckSize += 10;
 
-            // Se restar pouca variedade no baralho para intercalar, adiciona preenchimento aleatório
             if (p.remainingDeck.length < 25) {
                 const paddingCount = 18;
                 const padding = getRandomPaddingPairs(p.level, paddingCount, currentNum1, currentNum2);
@@ -319,7 +576,7 @@
         }
 
         saveState();
-        updateUI(); // Atualiza a barra de progresso imediatamente (tanto no acerto quanto no erro)
+        updateUI();
         nextQuestion();
     }
 
