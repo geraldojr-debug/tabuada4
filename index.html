@@ -10,37 +10,38 @@
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
         h1, h2, h3 { color: #333; margin-top: 0; }
         .btn { background: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 16px; width: 100%; cursor: pointer; margin-top: 10px; font-weight: bold; }
+        .btn:hover { background: #0069d9; }
         .btn-sec { background: #6c757d; }
+        .btn-sec:hover { background: #5a6268; }
         .btn-warn { background: #ffc107; color: #333; }
+        .btn-warn:hover { background: #e0a800; }
         .btn-sm { padding: 6px 12px; font-size: 14px; width: auto; margin: 0; }
         input[type="text"], select { width: 100%; padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; text-align: center; margin-bottom: 10px; }
         
         /* Barra de Progresso */
         .progress-container { background: #e0e0e0; border-radius: 10px; height: 20px; width: 100%; margin: 10px 0 5px 0; overflow: hidden; }
-        .progress-bar { background: #28a745; height: 100%; width: 0%; transition: width 0.3s; }
+        .progress-bar { background: #28a745; height: 100%; width: 0%; transition: width 0.25s ease; }
         .progress-text { font-size: 14px; font-weight: bold; color: #555; }
 
         /* Teclado Numérico */
-        .display-answer { font-size: 32px; font-weight: bold; height: 50px; line-height: 50px; border: 2px solid #007bff; border-radius: 8px; margin: 10px 0; background: #f8f9fa; color: #333; }
+        .display-answer { font-size: 32px; font-weight: bold; height: 52px; line-height: 50px; border: 2px solid #007bff; border-radius: 8px; margin: 10px 0; background: #f8f9fa; color: #333; }
         .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
-        .key { background: #e9ecef; border: none; padding: 15px; font-size: 20px; font-weight: bold; border-radius: 8px; color: #333; }
+        .key { background: #e9ecef; border: none; padding: 15px; font-size: 20px; font-weight: bold; border-radius: 8px; color: #333; cursor: pointer; user-select: none; }
         .key:active { background: #ced4da; }
         .key-danger { background: #dc3545; color: white; }
+        .key-danger:active { background: #bd2130; }
 
-        .question { font-size: 36px; font-weight: bold; color: #007bff; margin: 10px 0; min-height: 50px; }
-        .bonus-badge { background: #ffc107; color: #000; font-weight: bold; padding: 4px 12px; border-radius: 20px; font-size: 16px; display: inline-block; margin-bottom: 5px; animation: pulse 1s infinite alternate; }
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+        .question { font-size: 38px; font-weight: bold; color: #007bff; margin: 10px 0; min-height: 52px; display: flex; align-items: center; justify-content: center; }
 
-        .hidden { display: none; }
-        .profile-item { display: flex; justify-content: space-between; align-items: center; background: #e9ecef; padding: 10px; border-radius: 8px; margin-bottom: 10px; text-align: left; }
+        .hidden { display: none !important; }
+        .profile-item { display: flex; justify-content: space-between; align-items: center; background: #e9ecef; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; text-align: left; }
         
-        /* Tabela de Ranking */
         .rank-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
         .rank-table th, .rank-table td { border: 1px solid #ddd; padding: 8px; text-align: center; }
         .rank-table th { background-color: #007bff; color: white; }
 
-        .timer-display { font-size: 18px; font-weight: bold; color: #dc3545; margin: 5px 0; }
-        .controls-row { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .timer-display { font-size: 18px; font-weight: bold; color: #dc3545; margin: 6px 0; }
+        .controls-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -48,7 +49,7 @@
 <div class="card">
     <!-- TELA DE PERFIS E RANKING -->
     <div id="screen-profiles">
-        <h2>Selecione o Perfil</h2>
+        <h2>Desafio da Tabuada</h2>
         <div id="profile-list"></div>
         <hr>
         <input type="text" id="new-profile-name" placeholder="Nome do novo perfil" maxlength="15">
@@ -64,13 +65,13 @@
     <!-- TELA DO JOGO -->
     <div id="screen-game" class="hidden">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong id="user-display"></strong>
-            <button class="btn btn-sec btn-sm" onclick="showProfiles()">Sair / Perfil</button>
+            <strong id="user-display" style="font-size: 16px;"></strong>
+            <button class="btn btn-sec btn-sm" onclick="exitToProfiles()">Sair / Perfil</button>
         </div>
 
         <div style="margin-top: 10px;">
             <label for="select-level" style="font-weight: bold;">Nível Atual: </label>
-            <select id="select-level" style="width: auto; display: inline-block;" onchange="changeLevel(this.value)"></select>
+            <select id="select-level" style="width: auto; display: inline-block; padding: 6px 10px;" onchange="changeLevel(this.value)"></select>
         </div>
 
         <div class="timer-display">⏱️ Tempo: <span id="timer-text">00:00</span></div>
@@ -80,19 +81,15 @@
             <button class="btn btn-sec btn-sm" onclick="restartLevel()">Reiniciar Nível</button>
         </div>
 
-        <!-- Progresso do Nível -->
         <div class="progress-container">
             <div id="progress-bar" class="progress-bar"></div>
         </div>
         <div id="progress-text" class="progress-text">0.00%</div>
 
-        <div id="bonus-banner" class="hidden"><span class="bonus-badge">✨ BÔNUS! (-10s se acertar) ✨</span></div>
         <div class="question" id="question-display">1 × 1 = ?</div>
 
-        <!-- Visor da Resposta -->
         <div class="display-answer" id="answer-display"></div>
 
-        <!-- Teclado Numérico Virtual -->
         <div id="game-controls">
             <div class="keypad">
                 <button class="key" onclick="pressKey('1')">1</button>
@@ -115,131 +112,184 @@
 </div>
 
 <script>
-    let profiles = JSON.parse(localStorage.getItem('tabuada_profiles')) || {};
-    let ranking = JSON.parse(localStorage.getItem('tabuada_ranking')) || [];
-    let currentProfile = null;
+    // ==========================================
+    // ESTADO PERSISTENTE E VARIÁVEIS DE SESSÃO
+    // ==========================================
+    let profiles = JSON.parse(localStorage.getItem('tabuada_v4_profiles')) || {};
+    let ranking = JSON.parse(localStorage.getItem('tabuada_v4_ranking')) || [];
+    let currentProfileName = null;
 
-    // Estado da partida atual (valores matemáticos internos)
-    let currentNum1 = 0;
-    let currentNum2 = 0;
-    let currentPairIndex = -1;
+    let activeCard = null; // { a, b, type: 'deck' | 'punishment' | 'filler', deckIndex: number, punishmentIndex: number }
+    let displayA = 0;
+    let displayB = 0;
+    let lastShownPair = null; // [displayA, displayB] da rodada imediatamente anterior
     let inputAnswer = "";
-
-    // Valores estéticos exibidos na tela
-    let displayedF1 = 0;
-    let displayedF2 = 0;
-
-    // Histórico de apresentações visuais
-    let shownHistory = []; 
-
-    // Estado da rodada BÔNUS
-    let isBonusMode = false;
-    let bonusNum1 = 0;
-    let bonusNum2 = 0;
-
-    // Cronômetro
     let timerInterval = null;
     let isPaused = false;
 
-    function saveState() {
-        localStorage.setItem('tabuada_profiles', JSON.stringify(profiles));
-        localStorage.setItem('tabuada_ranking', JSON.stringify(ranking));
+    function saveData() {
+        localStorage.setItem('tabuada_v4_profiles', JSON.stringify(profiles));
+        localStorage.setItem('tabuada_v4_ranking', JSON.stringify(ranking));
     }
 
-    function getMaxFactor2(level) {
+    // ==========================================
+    // REGRAS DE GERAÇÃO DE BARALHO E NÍVEIS
+    // ==========================================
+    function getMaxFactorB(level) {
         return level <= 10 ? 10 : level;
     }
 
-    function generateLevelDeck(level) {
-        const repetitions = (level <= 2) ? 1 : 2;
-        const maxFactor2 = getMaxFactor2(level);
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function buildDeck(level) {
+        const reps = (level <= 2) ? 1 : 2;
+        const maxB = getMaxFactorB(level);
         const deck = [];
-        for (let rep = 0; rep < repetitions; rep++) {
-            for (let i = 1; i <= level; i++) {
-                for (let j = 1; j <= maxFactor2; j++) {
-                    deck.push([i, j]);
+        for (let r = 0; r < reps; r++) {
+            for (let a = 1; a <= level; a++) {
+                for (let b = 1; b <= maxB; b++) {
+                    deck.push([a, b]);
                 }
             }
         }
-        return deck;
+        return shuffle(deck);
     }
 
-    function initProfileDeckIfNeeded(p) {
-        if (!p.remainingDeck || p.remainingDeck.length === 0) {
-            p.remainingDeck = generateLevelDeck(p.level);
-            p.totalDeckSize = p.remainingDeck.length;
-            p.completedCount = 0;
-            p.timeElapsed = 0;
+    function setupLevelState(profile, level) {
+        profile.level = level;
+        if (!profile.maxLevelUnlocked || level > profile.maxLevelUnlocked) {
+            profile.maxLevelUnlocked = level;
         }
-        if (!p.maxLevelUnlocked) p.maxLevelUnlocked = p.level;
-        if (p.timeElapsed === undefined) p.timeElapsed = 0;
+        profile.deck = buildDeck(level);
+        profile.punishments = []; // Lista de { a, b, remaining }
+        profile.punishmentCursor = 0; // Índice da próxima punição no bloco atual
+        profile.inPunishmentSweep = false; // Indica se está varrendo o bloco de punições
+        profile.normalRoundsSincePunishment = 0; // Conta até 2 rodadas normais entre varreduras
+        profile.timeElapsed = 0;
+        profile.completedWeight = 0;
+        profile.totalWeight = profile.deck.length;
     }
 
+    function ensureProfileIntegrity(profile) {
+        if (!profile.level) profile.level = 1;
+        if (!profile.maxLevelUnlocked) profile.maxLevelUnlocked = profile.level;
+        if (!Array.isArray(profile.deck)) profile.deck = [];
+        if (!Array.isArray(profile.punishments)) profile.punishments = [];
+        if (typeof profile.punishmentCursor !== 'number') profile.punishmentCursor = 0;
+        if (typeof profile.inPunishmentSweep !== 'boolean') profile.inPunishmentSweep = false;
+        if (typeof profile.normalRoundsSincePunishment !== 'number') profile.normalRoundsSincePunishment = 0;
+        if (typeof profile.timeElapsed !== 'number') profile.timeElapsed = 0;
+
+        if (profile.punishmentCursor >= profile.punishments.length) {
+            profile.punishmentCursor = 0;
+            profile.inPunishmentSweep = false;
+        }
+
+        if (profile.deck.length === 0 && profile.punishments.length === 0) {
+            setupLevelState(profile, profile.level);
+        }
+
+        const pendingPunishments = profile.punishments.reduce((acc, item) => acc + item.remaining, 0);
+        const remainingTotal = profile.deck.length + pendingPunishments;
+        if (typeof profile.totalWeight !== 'number' || profile.totalWeight < remainingTotal) {
+            profile.totalWeight = remainingTotal;
+        }
+        if (typeof profile.completedWeight !== 'number') {
+            profile.completedWeight = Math.max(0, profile.totalWeight - remainingTotal);
+        }
+    }
+
+    // ==========================================
+    // UTILITÁRIOS MATEMÁTICOS
+    // ==========================================
+    function isSameAccount(pair1, pair2) {
+        if (!pair1 || !pair2) return false;
+        return (pair1[0] === pair2[0] && pair1[1] === pair2[1]) ||
+               (pair1[0] === pair2[1] && pair1[1] === pair2[0]);
+    }
+
+    function randomAccount(level) {
+        const maxB = getMaxFactorB(level);
+        return [
+            Math.floor(Math.random() * level) + 1,
+            Math.floor(Math.random() * maxB) + 1
+        ];
+    }
+
+    function formatTime(sec) {
+        const m = Math.floor(sec / 60).toString().padStart(2, '0');
+        const s = (sec % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    // ==========================================
+    // CRONÔMETRO E CONTROLES DE ESTADO
+    // ==========================================
     function startTimer() {
         stopTimer();
         timerInterval = setInterval(() => {
-            if (!isPaused && currentProfile && profiles[currentProfile]) {
-                profiles[currentProfile].timeElapsed++;
-                updateTimerDisplay();
-                saveState();
+            if (!isPaused && currentProfileName && profiles[currentProfileName]) {
+                profiles[currentProfileName].timeElapsed++;
+                updateTimerUI();
+                saveData();
             }
         }, 1000);
     }
 
     function stopTimer() {
-        if (timerInterval) clearInterval(timerInterval);
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
     }
 
-    function formatTime(seconds) {
-        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-        const s = (seconds % 60).toString().padStart(2, '0');
-        return `${m}:${s}`;
-    }
-
-    function updateTimerDisplay() {
-        if (!currentProfile || !profiles[currentProfile]) return;
-        document.getElementById('timer-text').innerText = formatTime(profiles[currentProfile].timeElapsed);
+    function updateTimerUI() {
+        const p = profiles[currentProfileName];
+        if (p) {
+            document.getElementById('timer-text').innerText = formatTime(p.timeElapsed);
+        }
     }
 
     function togglePause() {
         isPaused = !isPaused;
         const btn = document.getElementById('btn-pause');
         const controls = document.getElementById('game-controls');
-        const questionDisplay = document.getElementById('question-display');
-        const bonusBanner = document.getElementById('bonus-banner');
+        const qDisplay = document.getElementById('question-display');
 
         if (isPaused) {
             btn.innerText = "Continuar";
-            btn.classList.remove('btn-warn');
-            btn.classList.add('btn');
+            btn.className = "btn btn-sm";
             controls.classList.add('hidden');
-            bonusBanner.classList.add('hidden');
-            questionDisplay.innerText = "PAUSADO";
+            qDisplay.innerText = "PAUSADO";
         } else {
             btn.innerText = "Pausar";
-            btn.classList.remove('btn');
-            btn.classList.add('btn-warn');
+            btn.className = "btn btn-warn btn-sm";
             controls.classList.remove('hidden');
-            if (isBonusMode) bonusBanner.classList.remove('hidden');
-            renderCurrentQuestion();
+            renderQuestionUI();
         }
     }
 
     function restartLevel() {
-        if (!confirm("Tem certeza que deseja reiniciar o progresso e o tempo deste nível?")) return;
-        const p = profiles[currentProfile];
-        p.remainingDeck = generateLevelDeck(p.level);
-        p.totalDeckSize = p.remainingDeck.length;
-        p.completedCount = 0;
-        p.timeElapsed = 0;
-        shownHistory = [];
-        isBonusMode = false;
-        document.getElementById('bonus-banner').classList.add('hidden');
-        saveState();
-        updateUI();
-        nextQuestion();
+        if (!confirm("Deseja reiniciar o progresso e o tempo deste nível?")) return;
+        const p = profiles[currentProfileName];
+        setupLevelState(p, p.level);
+        lastShownPair = null;
+        if (isPaused) togglePause();
+        saveData();
+        updateProgressUI();
+        updateTimerUI();
+        prepareNextRound();
     }
 
+    // ==========================================
+    // TELAS: PERFIS E RANKING
+    // ==========================================
     function renderRanking() {
         const container = document.getElementById('ranking-container');
         if (ranking.length === 0) {
@@ -247,7 +297,7 @@
             return;
         }
 
-        ranking.sort((a, b) => {
+        const sorted = [...ranking].sort((a, b) => {
             if (b.level !== a.level) return b.level - a.level;
             return a.time - b.time;
         });
@@ -265,13 +315,13 @@
                 <tbody>
         `;
 
-        ranking.slice(0, 15).forEach((item, index) => {
+        sorted.slice(0, 15).forEach((entry, idx) => {
             html += `
                 <tr>
-                    <td>${index + 1}º</td>
-                    <td><strong>${item.name}</strong></td>
-                    <td>Nível ${item.level}</td>
-                    <td>${formatTime(item.time)}</td>
+                    <td>${idx + 1}º</td>
+                    <td><strong>${entry.name}</strong></td>
+                    <td>Nível ${entry.level}</td>
+                    <td>${formatTime(entry.time)}</td>
                 </tr>
             `;
         });
@@ -280,13 +330,13 @@
         container.innerHTML = html;
     }
 
-    function showProfiles() {
+    function showProfilesScreen() {
         stopTimer();
         document.getElementById('screen-game').classList.add('hidden');
         document.getElementById('screen-profiles').classList.remove('hidden');
-        
-        const listContainer = document.getElementById('profile-list');
-        listContainer.innerHTML = '';
+
+        const list = document.getElementById('profile-list');
+        list.innerHTML = '';
 
         Object.keys(profiles).forEach(name => {
             const p = profiles[name];
@@ -297,63 +347,63 @@
                     <strong>${name}</strong><br>
                     <small style="color: #555;">Nível Atual: ${p.level} (Máx: ${p.maxLevelUnlocked || p.level})</small>
                 </div>
-                <button class="btn btn-sm" onclick="selectProfile('${name}')">Jogar</button>
+                <button class="btn btn-sm" onclick="startProfile('${name}')">Jogar</button>
             `;
-            listContainer.appendChild(div);
+            list.appendChild(div);
         });
 
         renderRanking();
     }
 
+    function exitToProfiles() {
+        saveData();
+        showProfilesScreen();
+    }
+
     function createProfile() {
         const input = document.getElementById('new-profile-name');
         const name = input.value.trim();
-        if (!name) return alert("Digite um nome válido!");
-        if (profiles[name]) return alert("Este perfil já existe!");
+        if (!name) {
+            alert("Digite um nome válido!");
+            return;
+        }
+        if (profiles[name]) {
+            alert("Este perfil já existe!");
+            return;
+        }
 
-        profiles[name] = {
-            level: 1,
-            maxLevelUnlocked: 1,
-            remainingDeck: [],
-            totalDeckSize: 0,
-            completedCount: 0,
-            timeElapsed: 0
-        };
-        initProfileDeckIfNeeded(profiles[name]);
-        saveState();
+        profiles[name] = {};
+        setupLevelState(profiles[name], 1);
+        saveData();
         input.value = '';
-        showProfiles();
+        showProfilesScreen();
     }
 
-    function selectProfile(name) {
-        currentProfile = name;
-        const p = profiles[currentProfile];
-        
-        initProfileDeckIfNeeded(p);
+    function startProfile(name) {
+        currentProfileName = name;
+        const p = profiles[currentProfileName];
+        ensureProfileIntegrity(p);
 
         document.getElementById('screen-profiles').classList.add('hidden');
         document.getElementById('screen-game').classList.remove('hidden');
         document.getElementById('user-display').innerText = name;
-        
-        shownHistory = [];
-        isBonusMode = false;
-        document.getElementById('bonus-banner').classList.add('hidden');
 
+        lastShownPair = null;
         if (isPaused) togglePause();
 
-        updateLevelSelector();
-        updateUI();
-        nextQuestion();
+        populateLevelSelect();
+        updateProgressUI();
+        updateTimerUI();
+        prepareNextRound();
         startTimer();
     }
 
-    function updateLevelSelector() {
-        const p = profiles[currentProfile];
+    function populateLevelSelect() {
+        const p = profiles[currentProfileName];
         const select = document.getElementById('select-level');
         select.innerHTML = '';
 
-        const maxUnlocked = p.maxLevelUnlocked || p.level;
-        for (let i = 1; i <= maxUnlocked; i++) {
+        for (let i = 1; i <= p.maxLevelUnlocked; i++) {
             const opt = document.createElement('option');
             opt.value = i;
             opt.innerText = i;
@@ -362,105 +412,114 @@
         }
     }
 
-    function changeLevel(newLevel) {
-        newLevel = parseInt(newLevel, 10);
-        const p = profiles[currentProfile];
-
+    function changeLevel(val) {
+        const newLevel = parseInt(val, 10);
+        const p = profiles[currentProfileName];
         if (newLevel === p.level) return;
 
-        p.level = newLevel;
-        p.remainingDeck = generateLevelDeck(p.level);
-        p.totalDeckSize = p.remainingDeck.length;
-        p.completedCount = 0;
-        p.timeElapsed = 0;
-        shownHistory = [];
-        isBonusMode = false;
-        document.getElementById('bonus-banner').classList.add('hidden');
-
-        saveState();
-        updateUI();
-        nextQuestion();
+        setupLevelState(p, newLevel);
+        lastShownPair = null;
+        saveData();
+        updateProgressUI();
+        updateTimerUI();
+        prepareNextRound();
     }
 
-    function updateUI() {
-        const p = profiles[currentProfile];
-        updateTimerDisplay();
-
-        const percentage = p.totalDeckSize > 0 ? (p.completedCount / p.totalDeckSize) * 100 : 0;
-        const formattedPercentage = Math.min(percentage, 100).toFixed(2);
-
-        document.getElementById('progress-bar').style.width = formattedPercentage + '%';
-        document.getElementById('progress-text').innerText = formattedPercentage + '%';
+    function updateProgressUI() {
+        const p = profiles[currentProfileName];
+        const pct = p.totalWeight > 0 ? (p.completedWeight / p.totalWeight) * 100 : 0;
+        const clamped = Math.min(100, Math.max(0, pct)).toFixed(2);
+        document.getElementById('progress-bar').style.width = clamped + '%';
+        document.getElementById('progress-text').innerText = clamped + '%';
     }
 
-    function isSameAccount(f1, f2, pair) {
-        if (!pair) return false;
-        return (f1 === pair[0] && f2 === pair[1]) || (f1 === pair[1] && f2 === pair[0]);
-    }
+    // ==========================================
+    // MOTOR CENTRAL DAS RODADAS
+    // ==========================================
+    function prepareNextRound() {
+        const p = profiles[currentProfileName];
+        if (p.deck.length === 0 && p.punishments.length === 0) return;
 
-    function nextQuestion() {
-        const p = profiles[currentProfile];
-        if (p.remainingDeck.length === 0) return;
+        let candidateA, candidateB, candidateType;
+        let candidateDeckIndex = -1;
+        let candidatePunishmentIndex = -1;
 
-        if (isBonusMode) {
-            renderCurrentQuestion();
-            clearAnswer();
-            return;
-        }
+        // Inicia a varredura do bloco de punições se houver punições ativas e:
+        // - já está no meio de um bloco de punições (inPunishmentSweep === true), OU
+        // - já se passaram 2 rodadas normais desde a última varredura (normalRoundsSincePunishment >= 2)
+        if (p.punishments.length > 0 && (p.inPunishmentSweep || p.normalRoundsSincePunishment >= 2)) {
+            if (!p.inPunishmentSweep) {
+                p.inPunishmentSweep = true;
+                p.punishmentCursor = 0;
+            }
+            if (p.punishmentCursor >= p.punishments.length) {
+                p.punishmentCursor = 0;
+            }
 
-        // Sorteia a conta interna do baralho
-        currentPairIndex = Math.floor(Math.random() * p.remainingDeck.length);
-        const pair = p.remainingDeck[currentPairIndex];
-        currentNum1 = pair[0];
-        currentNum2 = pair[1];
-
-        // CONTROLADOR ESTÉTICO: Checa se a conta é idêntica a alguma das 2 últimas exibidas
-        const last1 = shownHistory.length >= 1 ? shownHistory[shownHistory.length - 1] : null;
-        const last2 = shownHistory.length >= 2 ? shownHistory[shownHistory.length - 2] : null;
-
-        const matchesLast1 = isSameAccount(currentNum1, currentNum2, last1);
-        const matchesLast2 = isSameAccount(currentNum1, currentNum2, last2);
-
-        if (matchesLast1 || matchesLast2) {
-            isBonusMode = true;
-            document.getElementById('bonus-banner').classList.remove('hidden');
-
-            const maxF2 = getMaxFactor2(p.level);
+            candidatePunishmentIndex = p.punishmentCursor;
+            candidateA = p.punishments[candidatePunishmentIndex].a;
+            candidateB = p.punishments[candidatePunishmentIndex].b;
+            candidateType = 'punishment';
+        } else if (p.deck.length > 0) {
+            // Sorteia uma carta do baralho normal evitando repetição imediata se houver outra opção no baralho
+            let attempts = 0;
             do {
-                bonusNum1 = Math.floor(Math.random() * p.level) + 1;
-                bonusNum2 = Math.floor(Math.random() * maxF2) + 1;
-            } while (isSameAccount(bonusNum1, bonusNum2, [currentNum1, currentNum2]));
+                candidateDeckIndex = Math.floor(Math.random() * p.deck.length);
+                candidateA = p.deck[candidateDeckIndex][0];
+                candidateB = p.deck[candidateDeckIndex][1];
+                attempts++;
+            } while (
+                attempts < 25 &&
+                p.deck.length > 1 &&
+                isSameAccount([candidateA, candidateB], lastShownPair)
+            );
+            candidateType = 'deck';
         } else {
-            isBonusMode = false;
-            document.getElementById('bonus-banner').classList.add('hidden');
+            // Baralho normal acabou, mas há punição pendente: gera conta aleatória de preenchimento
+            let rand;
+            let attempts = 0;
+            do {
+                rand = randomAccount(p.level);
+                attempts++;
+            } while (attempts < 25 && isSameAccount(rand, lastShownPair));
+
+            candidateA = rand[0];
+            candidateB = rand[1];
+            candidateType = 'filler';
         }
 
-        // CONTROLADOR ESTÉTICO: Sorteia alternância estática dos fatores para não fixar o 1 à direita
-        let n1 = isBonusMode ? bonusNum1 : currentNum1;
-        let n2 = isBonusMode ? bonusNum2 : currentNum2;
+        activeCard = {
+            a: candidateA,
+            b: candidateB,
+            type: candidateType,
+            deckIndex: candidateDeckIndex,
+            punishmentIndex: candidatePunishmentIndex
+        };
 
-        if (Math.random() < 0.5) {
-            displayedF1 = n1;
-            displayedF2 = n2;
-        } else {
-            displayedF1 = n2;
-            displayedF2 = n1;
+        // Alternância estética da ordem dos fatores para não repetir a mesma posição visual
+        displayA = candidateA;
+        displayB = candidateB;
+        if (lastShownPair && displayA === lastShownPair[0] && candidateA !== candidateB) {
+            displayA = candidateB;
+            displayB = candidateA;
         }
 
-        renderCurrentQuestion();
+        renderQuestionUI();
         clearAnswer();
     }
 
-    function renderCurrentQuestion() {
+    function renderQuestionUI() {
         if (isPaused) return;
-        document.getElementById('question-display').innerText = `${displayedF1} × ${displayedF2} = ?`;
+        document.getElementById('question-display').innerText = `${displayA} × ${displayB} = ?`;
     }
 
-    function pressKey(val) {
-        if (inputAnswer.length < 7) {
-            inputAnswer += val;
-            document.getElementById('answer-display').innerText = inputAnswer;
-        }
+    // ==========================================
+    // TECLADO E SUBMISSÃO DE RESPOSTA
+    // ==========================================
+    function pressKey(digit) {
+        if (isPaused || inputAnswer.length >= 7) return;
+        inputAnswer += digit;
+        document.getElementById('answer-display').innerText = inputAnswer;
     }
 
     function clearAnswer() {
@@ -469,122 +528,140 @@
     }
 
     function backspace() {
+        if (isPaused) return;
         inputAnswer = inputAnswer.slice(0, -1);
         document.getElementById('answer-display').innerText = inputAnswer;
     }
 
-    function getRandomPaddingPairs(level, count, excludeN1, excludeN2) {
-        const maxFactor2 = getMaxFactor2(level);
-        const candidates = [];
-        for (let i = 1; i <= level; i++) {
-            for (let j = 1; j <= maxFactor2; j++) {
-                if (i !== excludeN1 || j !== excludeN2) {
-                    candidates.push([i, j]);
+    function submitAnswer() {
+        if (isPaused || inputAnswer === "" || !activeCard) return;
+
+        const p = profiles[currentProfileName];
+        const userAns = parseInt(inputAnswer, 10);
+        const correctAns = activeCard.a * activeCard.b;
+
+        lastShownPair = [displayA, displayB];
+
+        if (userAns === correctAns) {
+            if (activeCard.type === 'punishment') {
+                const idx = activeCard.punishmentIndex;
+                p.punishments[idx].remaining--;
+                p.completedWeight++;
+
+                if (p.punishments[idx].remaining <= 0) {
+                    // Remove a punição concluída; o cursor permanece no mesmo índice pois o próximo elemento desliza para ele
+                    p.punishments.splice(idx, 1);
+                } else {
+                    // Avança para a próxima punição ativa no bloco
+                    p.punishmentCursor = idx + 1;
+                }
+
+                // Se varreu todas as punições ativas da fila, encerra o bloco e libera 2 rodadas normais
+                if (p.punishmentCursor >= p.punishments.length) {
+                    p.inPunishmentSweep = false;
+                    p.punishmentCursor = 0;
+                    p.normalRoundsSincePunishment = 0;
+                }
+            } else if (activeCard.type === 'deck') {
+                if (activeCard.deckIndex >= 0 && activeCard.deckIndex < p.deck.length) {
+                    p.deck.splice(activeCard.deckIndex, 1);
+                }
+                p.completedWeight++;
+                if (p.punishments.length > 0) {
+                    p.normalRoundsSincePunishment++;
+                }
+            } else if (activeCard.type === 'filler') {
+                if (p.punishments.length > 0) {
+                    p.normalRoundsSincePunishment++;
                 }
             }
-        }
-        const result = [];
-        for (let k = 0; k < count; k++) {
-            const picked = candidates[Math.floor(Math.random() * candidates.length)];
-            result.push([picked[0], picked[1]]);
-        }
-        return result;
-    }
 
-    function submitAnswer() {
-        if (inputAnswer === "" || isPaused) return;
-
-        const p = profiles[currentProfile];
-        const userAnswer = parseInt(inputAnswer, 10);
-
-        // --- TRATAMENTO DA RESPOSTA BÔNUS ---
-        if (isBonusMode) {
-            const correctBonus = bonusNum1 * bonusNum2;
-
-            shownHistory.push([displayedF1, displayedF2]);
-            if (shownHistory.length > 5) shownHistory.shift();
-
-            if (userAnswer === correctBonus) {
-                p.timeElapsed = Math.max(0, p.timeElapsed - 10);
-                alert(`✨ BÔNUS ACERTADO! ✨\nVocê ganhou -10 segundos no seu tempo!`);
-            } else {
-                alert(`Bônus incorreto! O resultado era ${correctBonus}.\nSua partida continua normalmente sem penalidades.`);
-            }
-
-            isBonusMode = false;
-            document.getElementById('bonus-banner').classList.add('hidden');
-            saveState();
-            updateUI();
-
-            // Sorteia alternância estática para a conta principal retida
-            if (Math.random() < 0.5) {
-                displayedF1 = currentNum1;
-                displayedF2 = currentNum2;
-            } else {
-                displayedF1 = currentNum2;
-                displayedF2 = currentNum1;
-            }
-
-            renderCurrentQuestion();
-            clearAnswer();
-            return;
-        }
-
-        // --- TRATAMENTO DA RESPOSTA NORMAL ---
-        const correctAnswer = currentNum1 * currentNum2;
-
-        shownHistory.push([displayedF1, displayedF2]);
-        if (shownHistory.length > 5) shownHistory.shift();
-
-        if (userAnswer === correctAnswer) {
-            p.remainingDeck.splice(currentPairIndex, 1);
-            p.completedCount++;
-
-            if (p.remainingDeck.length === 0) {
+            // Verifica conclusão total do nível
+            if (p.deck.length === 0 && p.punishments.length === 0) {
                 ranking.push({
-                    name: currentProfile,
+                    name: currentProfileName,
                     level: p.level,
                     time: p.timeElapsed
                 });
 
+                updateProgressUI();
+
                 if (p.level < 100) {
-                    alert(`Parabéns! Você concluiu o Nível ${p.level} em ${formatTime(p.timeElapsed)} e avançou!`);
-                    p.level++;
-                    if (p.level > p.maxLevelUnlocked) {
-                        p.maxLevelUnlocked = p.level;
-                    }
-                    p.remainingDeck = generateLevelDeck(p.level);
-                    p.totalDeckSize = p.remainingDeck.length;
-                    p.completedCount = 0;
-                    p.timeElapsed = 0;
-                    shownHistory = [];
-                    updateLevelSelector();
+                    alert(`Parabéns! Você concluiu o Nível ${p.level} em ${formatTime(p.timeElapsed)}!`);
+                    setupLevelState(p, p.level + 1);
+                    lastShownPair = null;
+                    populateLevelSelect();
                 } else {
-                    alert(`Incrível! Você concluiu o Nível 100 em ${formatTime(p.timeElapsed)}!`);
+                    alert(`Incrível! Você zerou todos os 100 níveis em ${formatTime(p.timeElapsed)}!`);
                 }
             }
         } else {
-            alert(`Errou! O resultado de ${displayedF1} × ${displayedF2} é ${correctAnswer}.\nEsta multiplicação foi adicionada mais 10 vezes ao baralho.`);
-            
-            for (let i = 0; i < 10; i++) {
-                p.remainingDeck.push([currentNum1, currentNum2]);
-            }
-            p.totalDeckSize += 10;
+            // ERRO DO JOGADOR
+            alert(`Errou! O resultado de ${displayA} × ${displayB} é ${correctAns}.
+Esta conta aparecerá no bloco de punições a cada 2 rodadas até você acertá-la 10 vezes.`);
 
-            if (p.remainingDeck.length < 25) {
-                const paddingCount = 18;
-                const padding = getRandomPaddingPairs(p.level, paddingCount, currentNum1, currentNum2);
-                p.remainingDeck.push(...padding);
-                p.totalDeckSize += paddingCount;
+            const existingIdx = p.punishments.findIndex(item =>
+                isSameAccount([item.a, item.b], [activeCard.a, activeCard.b])
+            );
+
+            if (existingIdx !== -1) {
+                // Reinicia a contagem para 10
+                const missingToTen = 10 - p.punishments[existingIdx].remaining;
+                p.punishments[existingIdx].remaining = 10;
+                p.totalWeight += missingToTen;
+
+                // Se errou durante o bloco de punições, avança o cursor para não repetir a mesma conta imediatamente
+                if (activeCard.type === 'punishment') {
+                    p.punishmentCursor = existingIdx + 1;
+                    if (p.punishmentCursor >= p.punishments.length) {
+                        p.inPunishmentSweep = false;
+                        p.punishmentCursor = 0;
+                        p.normalRoundsSincePunishment = 0;
+                    }
+                }
+            } else {
+                // Adiciona nova punição de 10 repetições no final da fila
+                p.punishments.push({
+                    a: activeCard.a,
+                    b: activeCard.b,
+                    remaining: 10
+                });
+                p.totalWeight += 10;
+
+                // Se esta for a primeira punição da fila (ou se não estava em varredura),
+                // já marca normalRoundsSincePunishment = 2 para cobrar o bloco imediatamente na próxima rodada!
+                if (!p.inPunishmentSweep) {
+                    p.normalRoundsSincePunishment = 2;
+                }
             }
         }
 
-        saveState();
-        updateUI();
-        nextQuestion();
+        saveData();
+        updateProgressUI();
+        prepareNextRound();
     }
 
-    showProfiles();
+    // ==========================================
+    // SUPORTE A TECLADO FÍSICO (PC)
+    // ==========================================
+    document.addEventListener('keydown', (e) => {
+        const gameScreen = document.getElementById('screen-game');
+        if (gameScreen.classList.contains('hidden') || isPaused) return;
+
+        if (/^[0-9]$/.test(e.key)) {
+            pressKey(e.key);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            submitAnswer();
+        } else if (e.key === 'Backspace') {
+            e.preventDefault();
+            backspace();
+        } else if (e.key === 'Delete' || e.key.toLowerCase() === 'c') {
+            clearAnswer();
+        }
+    });
+
+    showProfilesScreen();
 </script>
 
 </body>
